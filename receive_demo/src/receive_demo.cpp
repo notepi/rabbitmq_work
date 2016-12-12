@@ -26,16 +26,17 @@ int main(int argc, const char **argv) {
 	int channelid = 1;
 	amqp_connection_state_t conn;
 	conn = amqp_new_connection();
-
+	/*打开链接*/
 	die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
 	amqp_set_sockfd(conn, sockfd);
+	/*登录*/
 	die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, "guest", "guest"),"Logging in");
 	amqp_channel_open(conn, channelid);
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
-
+	/*申明queue*/
 	amqp_queue_declare(conn,channelid,amqp_cstring_bytes(queuename),0,1,0,0,amqp_empty_table);
 
-
+	/*预取消息的条数*/
 	amqp_basic_qos(conn,channelid,0,1,0);
 	amqp_basic_consume(conn,channelid,amqp_cstring_bytes(queuename),amqp_empty_bytes,0,0,0,amqp_empty_table);
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
@@ -50,6 +51,7 @@ int main(int argc, const char **argv) {
 
 		while (1) {
 			amqp_maybe_release_buffers(conn);
+			/*读取消息*/
 			result = amqp_simple_wait_frame(conn, &frame);
 			printf("Result %d\n", result);
 			if (result < 0){
