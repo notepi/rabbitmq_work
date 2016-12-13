@@ -17,7 +17,7 @@ int main(int argc, const char **argv) {
 	const char *exchange;
 	const char *queuename;
 
-	hostname = "10.105.92.103";
+	hostname = "localhost";
 	port = 5672;
 	exchange = "";
 	queuename = "hello";
@@ -51,7 +51,7 @@ int main(int argc, const char **argv) {
 
 		while (1) {
 			amqp_maybe_release_buffers(conn);
-			/*读取消息*/
+			/*第一次读取*/
 			result = amqp_simple_wait_frame(conn, &frame);
 			printf("Result %d\n", result);
 			if (result < 0){
@@ -70,6 +70,7 @@ int main(int argc, const char **argv) {
 				(int) d->exchange.len, (char *) d->exchange.bytes,
 				(int) d->routing_key.len, (char *) d->routing_key.bytes);
 
+			/*第二次读取*/
 			result = amqp_simple_wait_frame(conn, &frame);
 			if (result < 0)
 				break;
@@ -90,6 +91,7 @@ int main(int argc, const char **argv) {
 			body_received = 0;
 
 			while (body_received < body_target) {
+				/*第三次读取，读取消息体*/
 				result = amqp_simple_wait_frame(conn, &frame);
 				if (result < 0)
 					break;

@@ -16,10 +16,10 @@ int main(int argc, const char **argv) {
 	const char *messagebody;
   char const *bindingkey;
 
-	hostname = "localhost";
+	hostname = "10.105.92.103";
 	port = 5672;
 	exchange = "";
-	queuename = "hhhaaa";
+	queuename = "hello";
 	bindingkey = queuename;
 	messagebody = "hello world";
 
@@ -57,8 +57,8 @@ int main(int argc, const char **argv) {
 																		0,
 																		0,
 										//&props,
-																		NULL,
-																		amqp_cstring_bytes(messagebody)),
+										NULL,
+										amqp_cstring_bytes(messagebody)),
 					"Publishing");
 	}
 	printf("end!\n");
