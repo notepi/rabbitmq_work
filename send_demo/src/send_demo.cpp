@@ -18,8 +18,8 @@ int main(int argc, const char **argv) {
 
 	hostname = "localhost";
 	port = 5672;
-	exchange = "";
-	queuename = "hhhaaa";
+	exchange = "exchange";
+	queuename = "xxxaaa";
 	bindingkey = queuename;
 	messagebody = "hello world";
 

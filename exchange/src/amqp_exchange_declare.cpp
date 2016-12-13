@@ -14,14 +14,15 @@ int main(int argc, const char **argv) {
 
 	const char *hostname;
 	int port;
-//	const char *exchange;
+	const char *exchange;
 	const char *queuename;
-
+	char const *bindingkey;
+	
 	hostname = "localhost";
 	port = 5672;
-//	exchange = "exchange";
-	queuename = "hhhaaa";
-
+	exchange = "exchange";
+	queuename = "xxxaaa";
+	bindingkey= queuename;
 	int sockfd;
 	int channelid = 1;
 	amqp_connection_state_t conn;
@@ -37,6 +38,14 @@ int main(int argc, const char **argv) {
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
 	/*申明queue*/
 	amqp_queue_declare(conn,channelid,amqp_cstring_bytes(queuename),0,1,0,0,amqp_empty_table);
+	
+  amqp_queue_bind(	conn, 
+  									1,
+										amqp_cstring_bytes(queuename),
+										amqp_cstring_bytes(exchange),
+										amqp_cstring_bytes(bindingkey),
+										amqp_empty_table);
+  die_on_amqp_error(amqp_get_rpc_reply(conn), "Unbinding");
 
 	/*预取消息的条数*/
 	amqp_basic_qos(conn,channelid,0,1,0);
