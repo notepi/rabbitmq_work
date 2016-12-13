@@ -17,12 +17,14 @@ int main(int argc, const char **argv) {
 	const char *exchange;
 	const char *queuename;
 	char const *bindingkey;
+	char const *exchangetype;
 	
 	hostname = "localhost";
 	port = 5672;
-	exchange = "exchange";
-	queuename = "xxxaaa";
-	bindingkey= queuename;
+	exchange = "test1";
+	queuename = "test1";
+	bindingkey = queuename;
+	exchangetype = "direct";
 	int sockfd;
 	int channelid = 1;
 	amqp_connection_state_t conn;
@@ -36,9 +38,21 @@ int main(int argc, const char **argv) {
 	die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, "guest", "guest"),"Logging in");
 	amqp_channel_open(conn, channelid);
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
+	/*申明exchange*/
+  amqp_exchange_declare(	conn,																			//[in] state connection state  
+  												1,																				//[in] channel the channel to do the RPC on
+  												amqp_cstring_bytes(exchange),							//[in] exchange exchange   
+  												amqp_cstring_bytes(exchangetype),					//[in] type type  
+													0,																				//[in] passive passive
+													0,																				//[in] durable durable  
+													0,																				//[in] auto_delete auto_delete
+													0,																				//[in] internal internal  
+													amqp_empty_table);												//[in] arguments arguments  
+	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
+	
 	/*申明queue*/
 	amqp_queue_declare(conn,channelid,amqp_cstring_bytes(queuename),0,1,0,0,amqp_empty_table);
-	
+	/*exchange和queue绑定*/
   amqp_queue_bind(	conn, 
   									1,
 										amqp_cstring_bytes(queuename),
