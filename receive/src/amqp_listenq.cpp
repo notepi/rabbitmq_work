@@ -54,7 +54,7 @@ int main(int argc, char const *const *argv)
   char const *queuename;
   amqp_socket_t *socket = NULL;
   amqp_connection_state_t conn;
-
+	amqp_frame_t frame;
   hostname = "10.105.92.103";
   port = 5672;
   queuename = "hello";
@@ -91,7 +91,12 @@ int main(int argc, char const *const *argv)
       if (AMQP_RESPONSE_NORMAL != res.reply_type) {
         break;
       }
-
+		// /*等待头部*/
+		int result = amqp_simple_wait_frame(conn, &frame);
+		printf("Result %d\n", result);
+		if (result < 0){
+			break;}
+			
       printf("Delivery %u, exchange %.*s routingkey %.*s\n",
              (unsigned) envelope.delivery_tag,
              (int) envelope.exchange.len, (char *) envelope.exchange.bytes,
@@ -108,8 +113,13 @@ int main(int argc, char const *const *argv)
 //      amqp_dump(envelope.message.body.bytes, envelope.message.body.len);
 			unsigned char *buf = (unsigned char *) envelope.message.body.bytes;
 			printf("%s", (unsigned char *) envelope.message.body.bytes);
-      printf("\n");
+			printf("\n");
 			printf("it's ok1!\n");
+		
+			amqp_basic_deliver_t *d;
+			d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
+			amqp_basic_ack(conn, 1, d->delivery_tag,0);
+			
       amqp_destroy_envelope(&envelope);
     }
   }
