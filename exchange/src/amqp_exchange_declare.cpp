@@ -25,54 +25,97 @@ int main(int argc, const char **argv) {
 	queuename = "test1";
 	bindingkey = queuename;
 	exchangetype = "direct";
+	
 	int sockfd;
 	int channelid = 1;
 	amqp_connection_state_t conn;
 	conn = amqp_new_connection();
 	/*打开链接*/
-	die_on_error(	sockfd = amqp_open_socket(	hostname,	//hostname 
-																						port),		//port 
+	die_on_error(	sockfd = amqp_open_socket(	hostname,	//[in]hostname 
+																						port),		//[in]port 
 								"Opening socket");
 	amqp_set_sockfd(conn, sockfd);
 	/*登录*/
-	die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, "guest", "guest"),"Logging in");
-	amqp_channel_open(conn, channelid);
+	die_on_amqp_error(amqp_login(	conn,																	//[in] state the connection object  
+																"/",																	//[in] vhost the virtual host to connect to on the broker. 
+																																			//The default on most brokers is "/"  
+																channelid,														//[in] channel_max the limit for number of channels for the connection. 
+																																			//0 means no limit, and is a good default (AMQP_DEFAULT_MAX_CHANNELS) 
+																																			//Note that the maximum number of channels the protocol supports is 
+																																			//65535 (2^16, with the 0-channel reserved). The server can set a lower channel_max 
+																																			//and then the client will use the lowest of the two  
+																131072,																//[in] frame_max the maximum size of an AMQP frame on the wire to request of the broker
+																																			//for this connection. 4096 is the minimum size, 2^31-1 is the maximum, a good default is 131072 (128KB), 
+																																			//or AMQP_DEFAULT_FRAME_SIZE  
+																0,																		//[in] heartbeat the number of seconds between heartbeat frames to request of the broker. 
+																																			//A value of 0 disables heartbeats. Note rabbitmq-c only has partial support for heartbeats, 
+																																			//as of v0.4.0 they are only serviced during amqp_basic_publish() and amqp_simple_wait_frame()/amqp_simple_wait_frame_noblock()  
+																AMQP_SASL_METHOD_PLAIN,								//[in] sasl_method the SASL method to authenticate with the broker. followed by the authentication information. For AMQP_SASL_METHOD_PLAIN, 
+																																			//the AMQP_SASL_METHOD_PLAIN should be followed by two arguments in this order: 
+																																			//const char* username, and const char* password.  
+																"guest",															//[in]username
+																"guest"),															//[in]password
+										"Logging in");
+	
+	amqp_channel_open(	conn,																						//[in] state connection state
+											channelid);																			//[in] channel the channel to do the RPC on
 	die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
 	/*申明exchange*/
-  amqp_exchange_declare(	conn,																			//[in] state connection state  
-  												1,																				//[in] channel the channel to do the RPC on
-  												amqp_cstring_bytes(exchange),							//[in] exchange exchange   
-  												amqp_cstring_bytes(exchangetype),					//[in] type type  
-													0,																				//[in] passive passive
-													0,																				//[in] durable durable  
-													0,																				//[in] auto_delete auto_delete
-													0,																				//[in] internal internal  
-													amqp_empty_table);												//[in] arguments arguments  
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
-	
+	{
+	  amqp_exchange_declare(	conn,																			//[in] state connection state  
+	  												channelid,																//[in] channel the channel to do the RPC on
+	  												amqp_cstring_bytes(exchange),							//[in] exchange exchange   
+	  												amqp_cstring_bytes(exchangetype),					//[in] type type  
+														0,																				//[in] passive passive
+														0,																				//[in] durable durable  
+														0,																				//[in] auto_delete auto_delete
+														0,																				//[in] internal internal  
+														amqp_empty_table);												//[in] arguments arguments  
+		die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
+	}
 	/*申明queue*/
-	amqp_queue_declare(conn,channelid,amqp_cstring_bytes(queuename),0,1,0,0,amqp_empty_table);
+	{
+		amqp_queue_declare(	conn,																						//[in] state connection state  
+												channelid,																			//[in] channel the channel to do the RPC on  
+												amqp_cstring_bytes(queuename),									//[in] queue queue
+												0,																							//[in] passive passive
+												1,																							//[in] durable durable
+												0,																							//[in] exclusive exclusive   
+												0,																							//[in] auto_delete auto_delete 
+												amqp_empty_table);															//[in] arguments arguments  
+		die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring queue");
+	}										
 	/*exchange和queue绑定*/
-  amqp_queue_bind(	conn, 
-  									1,
-										amqp_cstring_bytes(queuename),
-										amqp_cstring_bytes(exchange),
-										amqp_cstring_bytes(bindingkey),
-										amqp_empty_table);
-  die_on_amqp_error(amqp_get_rpc_reply(conn), "Unbinding");
+	{
+	  amqp_queue_bind(	conn,																							//[in] state connection state   
+	  									channelid,																				//[in] channel the channel to do the RPC on  
+											amqp_cstring_bytes(queuename),										//[in] queue queue  											
+											amqp_cstring_bytes(exchange),											//[in] exchange exchange  
+											amqp_cstring_bytes(bindingkey),										//[in] routing_key routing_key  
+											amqp_empty_table);																//[in] arguments arguments  
+	  die_on_amqp_error(amqp_get_rpc_reply(conn), "Unbinding");
+	}
 
 	/*预取消息的条数*/
-	amqp_basic_qos(conn,channelid,0,1,0);
-	amqp_basic_consume(	conn,															//state
-											channelid,												//channel
-											amqp_cstring_bytes(queuename),		//queue
-											amqp_empty_bytes,									//consumer_tag
-											0,																//no_local
-											0,																//no_ack
-											0,																//exclusive
-											amqp_empty_table);
-	die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
-
+	amqp_basic_qos(	conn,																									//[in] state connection state  
+									channelid,																						//[in] channel the channel to do the RPC on
+									0,																										//[in] prefetch_size prefetch_size 
+									1,																										//[in] prefetch_count prefetch_count  
+									0);																										//[in] global global
+	
+	/*循环获取消息*/
+	{								
+		amqp_basic_consume(	conn,																						//[in] state connection state  
+												channelid,																			//[in] channel the channel to do the RPC on  
+												amqp_cstring_bytes(queuename),									//[in] queue queue  
+												amqp_empty_bytes,																//[in] consumer_tag consumer_tag 
+												0,																							//[in] no_local no_local  
+												0,																							//[in] no_ack 
+												0,																							//[in] exclusive exclusive  
+												amqp_empty_table);															//[in] arguments arguments  
+		die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
+	}
+	/*读取消息*/
 	{
 		amqp_frame_t frame;
 		int result;
@@ -82,6 +125,7 @@ int main(int argc, const char **argv) {
 		size_t body_received;
 
 		while (1) {
+			/*释放conn的内存*/
 			amqp_maybe_release_buffers(conn);
 			/*第一次读取*/
 			result = amqp_simple_wait_frame(conn, &frame);
@@ -109,7 +153,7 @@ int main(int argc, const char **argv) {
 
 			if (frame.frame_type != AMQP_FRAME_HEADER) {
 				fprintf(stderr, "Expected header!");
-				abort();
+				break;
 			}
 
 			p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
@@ -130,7 +174,7 @@ int main(int argc, const char **argv) {
 
 				if (frame.frame_type != AMQP_FRAME_BODY) {
 					fprintf(stderr, "Expected body!");
-					abort();
+					break;//进程断掉
 				}
 				printf("ok!\n");
 
@@ -152,11 +196,10 @@ int main(int argc, const char **argv) {
 				break;
 			}
 			/* do something */
-
+			/*手动ack*/
 			amqp_basic_ack(conn,channelid,d->delivery_tag,0);
 		}
 	}
-
 	die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
 	die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
 	die_on_error(amqp_destroy_connection(conn), "Ending connection");
