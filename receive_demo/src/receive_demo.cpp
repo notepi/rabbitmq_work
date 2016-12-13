@@ -51,24 +51,24 @@ int main(int argc, const char **argv) {
 
 		while (1) {
 			amqp_maybe_release_buffers(conn);
-			/*读取消息*/
-			result = amqp_simple_wait_frame(conn, &frame);
-			printf("Result %d\n", result);
-			if (result < 0){
-			break;}
-
-			printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
-			if (frame.frame_type != AMQP_FRAME_METHOD)
-				continue;
-
-			printf("Method %s\n", amqp_method_name(frame.payload.method.id));
-			if (frame.payload.method.id != AMQP_BASIC_DELIVER_METHOD)
-				continue;
-
-			d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
-			printf("Delivery %u, exchange %.*s routingkey %.*s\n",(unsigned) d->delivery_tag,
-				(int) d->exchange.len, (char *) d->exchange.bytes,
-				(int) d->routing_key.len, (char *) d->routing_key.bytes);
+//			/*读取消息*/
+//			result = amqp_simple_wait_frame(conn, &frame);
+//			printf("Result %d\n", result);
+//			if (result < 0){
+//			break;}
+//
+//			printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
+//			if (frame.frame_type != AMQP_FRAME_METHOD)
+//				continue;
+//
+//			printf("Method %s\n", amqp_method_name(frame.payload.method.id));
+//			if (frame.payload.method.id != AMQP_BASIC_DELIVER_METHOD)
+//				continue;
+//
+//			d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
+//			printf("Delivery %u, exchange %.*s routingkey %.*s\n",(unsigned) d->delivery_tag,
+//				(int) d->exchange.len, (char *) d->exchange.bytes,
+//				(int) d->routing_key.len, (char *) d->routing_key.bytes);
 
 			result = amqp_simple_wait_frame(conn, &frame);
 			if (result < 0)
@@ -89,7 +89,6 @@ int main(int argc, const char **argv) {
 			body_target = frame.payload.properties.body_size;
 			body_received = 0;
 
-			int sleep_seconds = 0;
 			while (body_received < body_target) {
 				result = amqp_simple_wait_frame(conn, &frame);
 				if (result < 0)
