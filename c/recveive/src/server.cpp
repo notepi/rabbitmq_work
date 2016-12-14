@@ -107,7 +107,7 @@ int main(int argc, const char **argv) {
 	char const *p_cBindingKey;
 	char const *p_cExchangeType;
 	
-	g_cHostName = "localhost";
+	p_cHostName = "localhost";
 	nPort = 5672;
 	p_cExchange = "test1";
 	p_cQueueName = "test1";
