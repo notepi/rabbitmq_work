@@ -52,7 +52,4 @@ void MqMessagePublish(	amqp_connection_state_t conn,
 												char const *p_cExchange,
 												char const *p_cQueueName,
 												char const *p_cMessageBody);
-/*处理收到的信息*/
-void HandlerMqMessage(	const char *p_cBytes, 
-									int nLen);
 #endif

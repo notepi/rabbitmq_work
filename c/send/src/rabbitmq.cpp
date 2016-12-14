@@ -1,5 +1,5 @@
 #include "rabbitmq.h"
-#include <string.h>
+
 /*µÇÂ¼µ½rabbitmq*/
 amqp_connection_state_t LogToRabbitmq(	int n_Channelid,
 																				char const *p_cHostName,
@@ -188,14 +188,12 @@ void ReandMqMessage(	amqp_connection_state_t conn,
 					break;
 				};
 
-//				int i;
-//				for(i = 0; i<frame.payload.body_fragment.len; i++)
-//				{
-//					printf("%c",*((char*)frame.payload.body_fragment.bytes+i));
-//				}
-//				printf("\n");
-				HandlerMqMessage(	(const char*)(frame.payload.body_fragment.bytes), 
-													frame.payload.body_fragment.len);
+				int i;
+				for(i = 0; i<frame.payload.body_fragment.len; i++)
+				{
+					printf("%c",*((char*)frame.payload.body_fragment.bytes+i));
+				}
+				printf("\n");
 
 			}
 
@@ -232,12 +230,4 @@ void MqMessagePublish(	amqp_connection_state_t conn,
 																			NULL,																//[in] properties the properties associated with the message  
 																			amqp_cstring_bytes(p_cMessageBody)),//[in] body the message body  
 									"Publishing");
-	}
-void	HandlerMqMessage(const char *p_cBytes, int nLen)
-	{
-		char *p_cBuffer;		
-		p_cBuffer = (char *)malloc(sizeof(char) * (nLen + 1));
-		bcopy(p_cBytes, p_cBuffer, nLen);
-		p_cBuffer[nLen] = 0x00;
-		printf("receive:%s\n", p_cBuffer);
 	}
