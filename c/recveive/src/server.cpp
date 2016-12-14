@@ -100,60 +100,33 @@ using namespace std;
 
 int main(int argc, const char **argv) {
 
-	const char *hostname;
-	int port;
-	const char *exchange;
-	const char *queuename;
-	char const *bindingkey;
-	char const *exchangetype;
+	const char *p_cHostName;
+	int nPort;
+	const char *p_cExchange;
+	const char *p_cQueueName;
+	char const *p_cBindingKey;
+	char const *p_cExchangeType;
 	
-	hostname = "localhost";
-	port = 5672;
-	exchange = "test1";
-	queuename = "test1";
-	bindingkey = queuename;
-	exchangetype = "direct";
+	g_cHostName = "localhost";
+	nPort = 5672;
+	p_cExchange = "test1";
+	p_cQueueName = "test1";
+	p_cBindingKey = p_cQueueName;
+	p_cExchangeType = "direct";
 	
 	int sockfd;
 	int channelid = 1;
 	amqp_connection_state_t conn;
 
-//	conn = LogToRabbitmq(	channelid,
-//												hostname,
-//												port,
-//												"guest",
-//												"guest");
-//	cout <<"ok1!" << endl;
-//
-//	/*申明exchange*/
-//	DeclareExchange(	conn,
-//										channelid,
-//										exchange,
-//										exchangetype);
-//	cout <<"ok2!" << endl;	
-//	/*申明queue*/
-//	DeclareQueue(	conn,
-//								channelid,
-//								queuename);							
-//	/*exchange和queue绑定*/
-//	BlindExchangeQueue(	conn,
-//											channelid,
-//											queuename,
-//											exchange,
-//											bindingkey);
-//	/*设置循环读取消息*/	
-//	RabbitmqConsume(	conn,
-//										channelid,
-//										queuename);		
-conn =  Mqinit(	channelid,
-								hostname,
-								port,
-								exchange,
-								queuename,
-								bindingkey,
-								exchangetype,
-								"guest",
-								"guest");
+	conn =  Mqinit(	channelid,
+									p_cHostName,
+									nPort,
+									p_cExchange,
+									p_cQueueName,
+									p_cBindingKey,
+									p_cExchangeType,
+									"guest",
+									"guest");
 	/*读取消息*/
 	ReandMqMessage(	conn,
 									channelid);
