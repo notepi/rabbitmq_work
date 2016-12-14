@@ -207,3 +207,27 @@ void ReandMqMessage(	amqp_connection_state_t conn,
 			amqp_basic_ack(conn, n_Channelid, d->delivery_tag,0);
 		}
 	}
+void MqMessagePublish(	amqp_connection_state_t conn,
+												int nChannelid,
+												char const *p_cExchange,
+												char const *p_cQueueName,
+												char const *p_cMessageBody)
+	{
+		amqp_basic_properties_t props;
+		props._flags = AMQP_BASIC_DELIVERY_MODE_FLAG;
+		/*props.content_type = amqp_cstring_bytes("text/plain");*/
+		props.delivery_mode = 2; /* persistent delivery mode */
+		
+		/*ÍÆËÍÏûÏ¢*/
+		die_on_error(	amqp_basic_publish(	conn,																//[in] state the connection object  
+																			nChannelid,													//[in] channel the channel identifier  
+																			amqp_cstring_bytes(p_cExchange),		//[in] exchange the exchange on the broker to publish to  
+																			amqp_cstring_bytes(p_cQueueName),		//[in] routing_key the routing key to use when publishing the message  
+																			0,																	//[in] mandatory indicate to the broker that the message MUST be routed to a queue. 
+																																					//If the broker cannot do this it should respond with a basic.return method.  
+																			0,																	//[in] immediate indicate to the broker that the message MUST be delivered to a 
+																																					//consumer immediately. If the broker cannot do this it should response with a basic.return method.  
+																			NULL,																//[in] properties the properties associated with the message  
+																			amqp_cstring_bytes(p_cMessageBody)),//[in] body the message body  
+									"Publishing");
+	}

@@ -45,4 +45,11 @@ void RabbitmqConsume(	amqp_connection_state_t conn,
 /*读取消息*/
 void ReandMqMessage(	amqp_connection_state_t conn,
 											int n_Channelid);
+											
+/*推送消息*/
+void MqMessagePublish(	amqp_connection_state_t conn,
+												int nChannelid,
+												char const *p_cExchange,
+												char const *p_cQueueName,
+												char const *p_cMessageBody);
 #endif
