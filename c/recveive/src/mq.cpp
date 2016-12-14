@@ -37,5 +37,6 @@ amqp_connection_state_t Mqinit(	int n_Channelid,
 	/*设置循环读取消息*/	
 	RabbitmqConsume(	conn,
 										n_Channelid,
-										p_cQueueName);		
+										p_cQueueName);
+	return conn;		
 }
