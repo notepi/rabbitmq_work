@@ -26,10 +26,14 @@ void DeclareExchange(	amqp_connection_state_t conn,
 											char const *p_cExchange,
 											char const *P_cExchangeType);
 											
-/*申明queue*/
+	/*申明queue*/
 void DeclareQueue(	amqp_connection_state_t conn,
 										int n_Channelid,
-										char const *p_cQueueName);
+										char const *p_cQueueName,
+										int nPassive,
+										int nDurable,
+										int nExclusive,
+										int nAutoDelete);
 										
 /*exchange和queue绑定*/
 void BlindExchangeQueue(	amqp_connection_state_t conn,
