@@ -10,5 +10,8 @@ amqp_connection_state_t Mqinit(	int n_Channelid,
 																char const *p_cExchangeType,
 																char const *p_cLogName,
 																char const *p_cLogPassWord);
+																
+void	HandlerMqMessage(	const char *p_cBytes,
+												int nLen);
 
 #endif

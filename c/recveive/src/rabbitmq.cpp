@@ -46,42 +46,29 @@ amqp_connection_state_t LogToRabbitmq(	int n_Channelid,
 void DeclareExchange(	amqp_connection_state_t conn,
 											int n_Channelid,
 											char const *p_cExchange,
-											char const *P_cExchangeType)
+											char const *P_cExchangeType,
+											int nPassive,	
+											int nDurable,
+											int nAuto_delete,
+											int nInternal)
 	{
 	  amqp_exchange_declare(	conn,																			//[in] state connection state  
 	  												n_Channelid,															//[in] channel the channel to do the RPC on
 	  												amqp_cstring_bytes(p_cExchange),					//[in] exchange exchange   
 	  												amqp_cstring_bytes(P_cExchangeType),			//[in] type type  
-														0,																				//[in] passive passive
-														0,																				//[in] durable durable  
-														0,																				//[in] auto_delete auto_delete
-														0,																				//[in] internal internal  
+														nPassive,																	//[in] passive passive n0
+														nDurable,																	//[in] durable durable  n0
+														nAuto_delete,															//[in] auto_delete auto_delete n0
+														nInternal,																//[in] internal internal  n0
 														amqp_empty_table);												//[in] arguments arguments  
 		die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
 	}
-
-///*ÉêÃ÷queue*/
-//void DeclareQueue(	amqp_connection_state_t conn,
-//										int n_Channelid,
-//										char const *p_cQueueName
-//										int nAutoDelete)
-//	{
-//		amqp_queue_declare(	conn,																						//[in] state connection state  
-//												n_Channelid,																		//[in] channel the channel to do the RPC on  
-//												amqp_cstring_bytes(p_cQueueName),								//[in] queue queue
-//												0,																							//[in] passive passive
-//												1,																							//[in] durable durable
-//												0,																							//[in] exclusive exclusive   
-//												0,																							//[in] auto_delete auto_delete 
-//												amqp_empty_table);															//[in] arguments arguments  
-//		die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring queue");
-//	}	
 	
 	/*ÉêÃ÷queue*/
 void DeclareQueue(	amqp_connection_state_t conn,
 										int n_Channelid,
 										char const *p_cQueueName,
-										int nPassive,
+										int nPassive,	
 										int nDurable,
 										int nExclusive,
 										int nAutoDelete)
@@ -89,10 +76,10 @@ void DeclareQueue(	amqp_connection_state_t conn,
 		amqp_queue_declare(	conn,																						//[in] state connection state  
 												n_Channelid,																		//[in] channel the channel to do the RPC on  
 												amqp_cstring_bytes(p_cQueueName),								//[in] queue queue
-												nPassive,																				//[in] passive passive
-												nDurable,																				//[in] durable durable
-												nExclusive,																			//[in] exclusive exclusive   
-												nAutoDelete,																		//[in] auto_delete auto_delete 
+												nPassive,																				//[in] passive passive n0
+												nDurable,																				//[in] durable durable n1
+												nExclusive,																			//[in] exclusive exclusive n0   
+												nAutoDelete,																		//[in] auto_delete auto_delete n0
 												amqp_empty_table);															//[in] arguments arguments  
 		die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring queue");
 	}	
@@ -254,12 +241,14 @@ void MqMessagePublish(	amqp_connection_state_t conn,
 																			amqp_cstring_bytes(p_cMessageBody)),//[in] body the message body  
 									"Publishing");
 	}
-void	HandlerMqMessage(const char *p_cBytes, int nLen)
-	{
-		char *p_cBuffer;		
-		p_cBuffer = (char *)malloc(sizeof(char) * (nLen + 1));
-		bcopy(p_cBytes, p_cBuffer, nLen);
-		p_cBuffer[nLen] = 0x00;
-		printf("receive:%s\n", p_cBuffer);
-		free(p_cBuffer);
-	}
+	
+
+//void	HandlerMqMessage(const char *p_cBytes, int nLen)
+//	{
+//		char *p_cBuffer;		
+//		p_cBuffer = (char *)malloc(sizeof(char) * (nLen + 1));
+//		bcopy(p_cBytes, p_cBuffer, nLen);
+//		p_cBuffer[nLen] = 0x00;
+//		printf("receive:%s\n", p_cBuffer);
+//		free(p_cBuffer);
+//	}

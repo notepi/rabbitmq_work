@@ -12,6 +12,7 @@
 #include <assert.h>
 
 #include "utils.h"
+extern void	HandlerMqMessage(const char *p_cBytes, int nLen);
 
 /*µÇÂ¼µ½rabbitmq*/
 amqp_connection_state_t LogToRabbitmq(	int n_Channelid,
@@ -24,9 +25,13 @@ amqp_connection_state_t LogToRabbitmq(	int n_Channelid,
 void DeclareExchange(	amqp_connection_state_t conn,
 											int n_Channelid,
 											char const *p_cExchange,
-											char const *P_cExchangeType);
+											char const *P_cExchangeType,
+											int nPassive,	
+											int nDurable,
+											int nAuto_delete,
+											int nInternal);
 											
-	/*ÉêÃ÷queue*/
+/*ÉêÃ÷queue*/
 void DeclareQueue(	amqp_connection_state_t conn,
 										int n_Channelid,
 										char const *p_cQueueName,
