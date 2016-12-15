@@ -1,5 +1,5 @@
 #include "rabbitmq.h"
-
+extern int gg_nFlags;
 amqp_connection_state_t Mqinit(	int nChannelid,
 																const char *p_cHostName,
 																int n_Port,
@@ -56,5 +56,10 @@ void	HandlerMqMessage(const char *p_cBytes, int nLen)
 		bcopy(p_cBytes, p_cBuffer, nLen);
 		p_cBuffer[nLen] = 0x00;
 		printf("receive:%s\n", p_cBuffer);
+		if(0 == strcmp(p_cBuffer, "m")){
+			printf("message count\n");
+			gg_nFlags = 1;
+			alarm(2);
+		}
 		free(p_cBuffer);
 	}

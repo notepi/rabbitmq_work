@@ -26,7 +26,7 @@ int gg_nFlags = 0;
 void OnSIGALRMHandler(int sig)
 {
 	printf("time up!\n");
-	alarm(2);
+	gg_nFlags = 0;
 }
 void *thread_A(void *arg)
 {
@@ -59,14 +59,17 @@ void *thread_A(void *arg)
 												nPort, 
 												p_cLogName,
 												p_cLogPassWord);
-	while(gg_nFlags){
-		/*推送消息*/
-		MqMessagePublish(	conn,
-											nChannelid,
-											p_cExchange,
-											p_cQueueName,
-											"hello world!");
-		printf("[As]:send ok!\n");
+	while(1){
+		if(gg_nFlags){
+			/*推送消息*/
+			MqMessagePublish(	conn,
+												nChannelid,
+												p_cExchange,
+												p_cQueueName,
+												"hello world!");
+			printf("[As]:send ok!\n");
+			sleep(2);
+		}
 	}
 	
 	die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
@@ -97,21 +100,31 @@ void *thread_B(void *arg)
 	
 	int nChannelid = 1;
 	amqp_connection_state_t conn;
-
-	/*登录rabbitmq*/
+	/*登录到rabbitmq*/
 	conn = LogToRabbitmq(	nChannelid,
 												p_cHostName,
 												nPort, 
 												p_cLogName,
 												p_cLogPassWord);
+	
+	/*申明exchange*/
+	DeclareExchange(	conn,
+										nChannelid,
+										p_cExchange,
+										p_cExchangeType,
+										0,//nPassive
+										0,//nDurable
+										0,//nExclusive
+										0);//nAutoDelete
 	/*申明queue*/
 	DeclareQueue(	conn,
 								nChannelid,
 								p_cQueueName,
 								0,//nPassive
-								1,//nDurable
+								0,//nDurable
 								0,//nExclusive
-								0);//nAutoDelete
+								1);//nAutoDelete
+	
 	/*exchange和queue绑定*/
 	BlindExchangeQueue(	conn,
 											nChannelid,
@@ -122,6 +135,12 @@ void *thread_B(void *arg)
 	RabbitmqConsume(	conn,
 										nChannelid,
 										p_cQueueName);
+	/*读取消息*/
+	ReandMqMessage(	conn,
+									nChannelid);
+	die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
+	die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
+	die_on_error(amqp_destroy_connection(conn), "Ending connection");
 		
 
 }
@@ -150,7 +169,7 @@ int main(int argc, char *argv[])
 	}
 	
 }
-
+//
 //int main(int argc, const char **argv) {
 //
 //	const char *p_cHostName;
