@@ -1,0 +1,24 @@
+2016-09-13 19:54:28 [DEBUG]: This is debug
+2016-09-13 19:54:28 [INFO]: This is info
+2016-09-13 19:54:28 [ALERT]: This is alert
+2016-09-13 19:55:59 [DEBUG]: This is debug
+2016-09-13 19:55:59 [INFO]: This is info
+2016-09-13 19:55:59 [ALERT]: This is alert
+2016-12-22 16:10:45 [DEBUG]: This is debug
+2016-12-22 16:10:45 [INFO]: This is info
+2016-12-22 16:10:45 [ALERT]: This is alert
+2016-12-22 20:13:09 [DEBUG]: This is debug
+2016-12-22 20:13:09 [INFO]: This is info
+2016-12-22 20:13:09 [ALERT]: This is alert
+2016-12-22 21:16:02 [DEBUG]: This is debug
+2016-12-22 21:16:02 [INFO]: This is info
+2016-12-22 21:16:02 [ALERT]: This is alert
+2016-12-22 21:16:02 [ALERT]: test
+2016-12-22 21:19:04 [DEBUG]: This is debug
+2016-12-22 21:23:51 [DEBUG]: This is debug
+2016-12-22 21:25:01 [DEBUG]: This is debug:5
+2016-12-22 21:33:47 [DEBUG]: This is debug:5
+2016-12-22 21:37:58 [INFO]: This is debug:5
+2016-12-22 21:48:03 [INFO]: This is debug:5
+2016-12-22 22:01:19 [DEBUG]: main.cpp,30,mainThis is debug:5
+2016-12-22 22:02:06 [DEBUG]: main.cpp , 30, main:This is debug:5
