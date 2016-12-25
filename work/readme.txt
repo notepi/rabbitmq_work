@@ -1,6 +1,10 @@
 文件结构--------------------------
-		congf:log4cpp日志的配置文件
+		congf:配置文件
+			log4cpp日志的配置文件
 		src：源文件
+			log:项目日志封装
+			log4cpp：log4cpp封装
+			core：项目核心代码
 		bin：编译后的文件
 		logs：生成日志文件
 Notes：
