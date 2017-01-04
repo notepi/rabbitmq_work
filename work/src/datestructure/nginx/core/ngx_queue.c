@@ -7,7 +7,7 @@
 
 #include <ngx_config.h>
 #include <ngx_core.h>
-#include "ngx_queue.c"
+#include "ngx_queue.h"
 
 
 /*

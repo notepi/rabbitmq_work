@@ -13,14 +13,10 @@ PROGRAM := ./bin/sys
 TARGET=$(PROGRAM)
 
 #编译参数变量
-CFLAGS = -c -g -w -I /usr/local/include/log4cpp
+CFLAGS = -c -g -w -I /usr/local/include/log4cpp 
 ASFLAGS = -c
-SYSLIBS =  -L /usr/local/lib/ -llog4cpp -lpthread		# -L的要先指定，否则会报错
-LDFLAGS = 
-OPT_NORMAL = -funroll-loops 							# -funroll-loops编译选项使得程序中的循环步骤完全展开。
-														# 这样会增加汇编代码的长度，并且攻击者需要隔离出每个循环，进行单独的修改，从而增大了攻击难度
-OPT_CPP = -std=c++11									# cpp编译
-SYSLIBS =  -L /usr/local/lib/ -llog4cpp -lpthread		# -L的要先指定，否则会报错
+# -L的要先指定，否则会报错
+SYSLIBS =  -L /usr/local/lib/ -llog4cpp -lpthread	-lpaho-mqtt3c	
 LDFLAGS = 
 OPT_NORMAL = -funroll-loops 							# -funroll-loops编译选项使得程序中的循环步骤完全展开。
 														# 这样会增加汇编代码的长度，并且攻击者需要隔离出每个循环，进行单独的修改，从而增大了攻击难度
