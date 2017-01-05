@@ -29,17 +29,9 @@ long TIMEOUT = 10000L;
 
 int main(int argc, char* argv[])
 {
-	char ch;
-	MQTTClient mqClient;
-	mqClient = MqttConnt();
-    MQTTClient_subscribe(mqClient, TOPIC, QOS);
+	MQTTUtil hh("localhost", "123");
+	hh.MQTTSubscribe(TOPIC, QOS);
 
-    do 
-    {
-        ch = getchar();
-    } while(ch!='Q' && ch != 'q');
-
-    MQTTClient_disconnect(mqClient, 10000);
-    MQTTClient_destroy(&mqClient);
+	while (1);
     return 1;
 }

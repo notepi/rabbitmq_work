@@ -23,10 +23,11 @@ volatile MQTTClient_deliveryToken deliveredtoken;
 						int nServerURIcount,
 						char **ppfcServerURIs,
 */
-MQTTClient MqttConnt(	
-					)
-{
-    MQTTClient mqClient;
+MQTTUtil::MQTTUtil(std::string sIP, std::string sClientID)
+	{
+		m_sIP = sIP;
+		m_sAddress = "tcp://" + sIP + ":1883";
+		m_sClientID = sClientID;
 	/*MQTTClient_connectOptions_initializer   
 		{ {'M', 'Q', 'T', 'C'}, 4, 60, 1, 1, NULL, NULL, NULL, 30, 20, NULL, 0, NULL, 0}
 	*/
@@ -53,21 +54,39 @@ MQTTClient MqttConnt(
 		   int   sessionPresent
 		}
 	*/
-    MQTTClient_connectOptions mqConnOpts = MQTTClient_connectOptions_initializer;
-    int nRc;
-    int nCh;
+		//m_mqConnOpts = MQTTClient_connectOptions_initializer;	//初始化默认参数
+		MQTTClient_create(	&m_mqClient,
+							m_sAddress.c_str(),
+							m_sClientID.c_str(),
+        					MQTTCLIENT_PERSISTENCE_NONE, 
+        					NULL);
+        MQTTClient_setCallbacks(m_mqClient, NULL, _OnMqttConnLostED, _OnMqttMsgArrvED, _OnMqttDeliverED);
+	}
+	
+MQTTUtil::~MQTTUtil()
+	{
+		MQTTClient_disconnect(m_mqClient, 10000);
+		MQTTClient_destroy(&m_mqClient);	
+	}	
 
-    MQTTClient_create(&mqClient, ADDRESS, CLIENTID,
-        				MQTTCLIENT_PERSISTENCE_NONE, NULL);
-    mqConnOpts.keepAliveInterval = 20;
-    mqConnOpts.cleansession = 1;
-    MQTTClient_setCallbacks(mqClient, NULL, _OnMqttConnLostED, _OnMqttMsgArrvED, _OnMqttDeliverED);
-
-    if ((nRc = MQTTClient_connect(mqClient, &mqConnOpts)) != MQTTCLIENT_SUCCESS)
-    {
-        printf("Failed to connect, return code %d\n", nRc);
-        exit(-1);       
-    }
-	printf("ok!");
-	return mqClient;
+void MQTTUtil::MqttInit()
+	{
+		int nRc;
+		if ((nRc = MQTTClient_connect(m_mqClient, &m_mqConnOpts)) != MQTTCLIENT_SUCCESS)
+			{
+				printf("Failed to connect, return code %d\n", nRc);
+				exit(-1);       
+			}
+		printf("ok!\n");
+	}
+void MQTTUtil::MQTTSubscribe(std::string sTopic, int nQOS)
+	{
+		m_sTopic = sTopic;
+		m_nQOS = nQOS;
+		MqttInit();
+		MQTTClient_subscribe(m_mqClient, sTopic.c_str(), m_nQOS);
+	}
+MQTTClient &MQTTUtil::GetClient()
+{
+	return m_mqClient;
 }
